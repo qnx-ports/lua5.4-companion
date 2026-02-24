@@ -1,0 +1,58 @@
+pkgname=lua5.4
+_pkgname=lua
+pkgver=5.4.7
+_luaver=${pkgname#lua}
+pkgrel=2
+pkgdesc="Powerful lightweight programming language designed for extending applications"
+url="https://www.lua.org/"
+arch="all"
+license="MIT"
+depends="readline $pkgname-libs"
+makedepends="readline-dev"
+depends_dev="$pkgname"
+subpackages="$pkgname-dev $pkgname-doc $pkgname-libs"
+source="https://www.lua.org/ftp/$_pkgname-$pkgver.tar.gz
+	lua.pc
+	qnx-liblua-so.patch
+	qnx-paths.patch
+"
+builddir="$srcdir/$_pkgname-$pkgver"
+
+build() {
+	# Prepare lua.pc
+	if ! [[ -e $srcdir/lua.pc ]]; then
+		die "Need lua.pc"
+	fi
+	sed "s/%VER%/$_luaver/g;s/%REL%/$pkgver/g" $srcdir/lua.pc > $srcdir/lua.pc.patched
+
+	make MYCFLAGS="$CFLAGS -fPIC" MYLDFLAGS="$LDFLAGS"
+}
+
+check() {
+	make test
+}
+
+package() {
+	make \
+	    TO_LIB="liblua.so liblua.so.$_luaver liblua.so.$pkgver" \
+            INSTALL="install" \
+	    INSTALL_TOP="$pkgdir"/usr \
+            INSTALL_MAN="$pkgdir"/usr/share/man/man1 \
+	    install
+	ln -s lua $pkgdir/usr/bin/lua5.4
+
+	install -Dm644 $srcdir/lua.pc.patched "$pkgdir"/usr/lib/pkgconfig/lua54.pc
+	ln -sf lua54.pc "$pkgdir"/usr/lib/pkgconfig/lua.pc
+	ln -sf lua54.pc "$pkgdir"/usr/lib/pkgconfig/lua5.4.pc
+	ln -sf lua54.pc "$pkgdir"/usr/lib/pkgconfig/lua-5.4.pc
+
+	install -d "$pkgdir"/usr/share/doc/$pkgname
+	install -m644 doc/*.{gif,png,css,html} "$pkgdir"/usr/share/doc/$pkgname
+}
+
+sha512sums="
+98c5c8978dfdf867e37e9eb3b3ec83dee92d199243b5119505da83895e33f10d43c841be6a7d3b106daba8a0b2bd25fe099ebff8f87831dcc55c79c78b97d8b8  lua-5.4.7.tar.gz
+8a817f95149ff2995d57dcac321724a793d7a31d351574a75617f04ef4b31e2e750d05ce38223e87d28b784dfecf84244b6d1a2dc6316f6d5cf3ecbee414595d  lua.pc
+db3e6c28cd49868f75a58f0da57b3800d2d32dccd69afb2adfb7c42e1be824aaa6c61834041aeb6cf143fa5187dcb64ce78f3f48ca401329226a1b673e2efa16  qnx-liblua-so.patch
+aabe945e0128483658b23587c5397609027b2e8ffc0e0fbe14c628a752860b3c40f1771cbfbe5c9d3e003d5651b527813d1f60b544e7126c58f7601f7643eb5b  qnx-paths.patch
+"
