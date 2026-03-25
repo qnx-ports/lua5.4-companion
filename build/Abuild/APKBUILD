@@ -2,7 +2,7 @@ pkgname=lua5.4
 _pkgname=lua
 pkgver=5.4.7
 _luaver=${pkgname#lua}
-pkgrel=${pkgrel:-0}
+pkgrel=2
 pkgdesc="Powerful lightweight programming language designed for extending applications"
 url="https://www.lua.org/"
 arch="all"
@@ -50,7 +50,6 @@ package() {
 	install -m644 doc/*.{gif,png,css,html} "$pkgdir"/usr/share/doc/$pkgname
 }
 
-options="$options ${DISABLE_CHECK:+!check}"
 sha512sums="
 98c5c8978dfdf867e37e9eb3b3ec83dee92d199243b5119505da83895e33f10d43c841be6a7d3b106daba8a0b2bd25fe099ebff8f87831dcc55c79c78b97d8b8  lua-5.4.7.tar.gz
 8a817f95149ff2995d57dcac321724a793d7a31d351574a75617f04ef4b31e2e750d05ce38223e87d28b784dfecf84244b6d1a2dc6316f6d5cf3ecbee414595d  lua.pc
